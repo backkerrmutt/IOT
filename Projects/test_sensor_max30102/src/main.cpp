@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <LiquidCrystal_I2C.h>
+#include <MAX30100_PulseOximeter.h>
 
 // put function declarations here:
 int myFunction(int, int);
