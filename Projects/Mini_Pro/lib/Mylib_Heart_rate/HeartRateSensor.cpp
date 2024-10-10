@@ -1,31 +1,35 @@
 #include "HeartRateSensor.h"
-
-
-HeartRateSensor::HeartRateSensor() : rateSpot(0), lastBeat(0), beatsPerMinute(0), beatAvg(0) {
-    for (byte i = 0; i < RATE_SIZE; i++) {
+int count;
+HeartRateSensor::HeartRateSensor() : rateSpot(0), lastBeat(0), beatsPerMinute(0), beatAvg(0)
+{
+    for (byte i = 0; i < RATE_SIZE; i++)
+    {
         rates[i] = 0;
     }
 }
 
-void HeartRateSensor::begin() {
+void HeartRateSensor::begin()
+{
     configulation();
 }
 
-void HeartRateSensor::update() {
-    calculator_Haert_Rate();
+void HeartRateSensor::update()
+{
+    calculator_Haert_Rate();   
 }
 
-int HeartRateSensor::getAverageBPM() {
-    if (isnofigure == true) {
+int HeartRateSensor::getAverageBPM()
+{
     return beatAvg;
-    }
-    else {
-        Serial.println("Place your finger in sensor and wait..");
-        return false;
-    }
 }
 
-void HeartRateSensor::configulation() {
+bool HeartRateSensor::getisnofigure()
+{
+    return isnofigure;
+}
+
+void HeartRateSensor::configulation()
+{
     Wire.setClock(400000);
     Serial.begin(115200);
 
@@ -34,18 +38,22 @@ void HeartRateSensor::configulation() {
 
     particleSensor.begin(Wire, I2C_SPEED_FAST);
     particleSensor.setup();
-    particleSensor.setPulseAmplitudeRed(0x0A);
+    // particleSensor.setPulseAmplitudeRed(0x0A);
 }
 
-void HeartRateSensor::calculator_Haert_Rate() {
+void HeartRateSensor::calculator_Haert_Rate()
+{
     long irValue = particleSensor.getIR();
 
-    if (irValue > 50000) {
-        if (checkForBeat(irValue) == true) {
+    if (irValue > 50000)
+    {
+        if (checkForBeat(irValue) == true)
+        {
             long delta = millis() - lastBeat;
             lastBeat = millis();
             beatsPerMinute = 60 / (delta / 1000.0);
-            if (beatsPerMinute < 255 && beatsPerMinute > 20) {
+            if (beatsPerMinute < 255 && beatsPerMinute > 20)
+            {
                 rates[rateSpot++] = (byte)beatsPerMinute;
                 rateSpot %= RATE_SIZE;
 
@@ -57,12 +65,12 @@ void HeartRateSensor::calculator_Haert_Rate() {
                 digitalWrite(ledPin, HIGH);
                 delay(100);
                 digitalWrite(ledPin, LOW);
-
-                isnofigure = true;
-
             }
         }
-    } else {
         isnofigure = false;
+    }
+    else
+    {
+        isnofigure = true;
     }
 }

@@ -12,12 +12,13 @@ public:
     void begin();
     void update();
     int getAverageBPM();
+    bool getisnofigure();
+    MAX30105 particleSensor;
 
 private:
     void configulation();
     void calculator_Haert_Rate();
 
-    MAX30105 particleSensor;
     static const byte RATE_SIZE = 4;
     byte rates[RATE_SIZE];
     byte rateSpot;
@@ -25,7 +26,7 @@ private:
     float beatsPerMinute;
     int beatAvg;
     const int ledPin = D4;
-    int isnofigure;
+    int isnofigure ;
 };
 
 #endif
