@@ -23,18 +23,7 @@ void setup() {
 }
 
 void loop() {
-
-    // if (state == IDEL)
-    // {
-    //     Serial.println("sdfsdf");
-    // }if ()
-    // {
-        
-    // }
     
-    
-    
-
 
     heartRateSensor.update();
    if (heartRateSensor.getisnofigure() == false)
