@@ -90,11 +90,17 @@ void loop()
     if (flag_red == true) // red_btn
     {
       flag_red = !flag_red;
-      delay(70);
+      delay(50);
       if (digitalRead(btn_red == 1))
       {
         Serial.println("Red do");
+        hrm.lcd.clear();
+        hrm.lcd.setCursor(0,0);
+        hrm.lcd.print("GoTO Homepage...");
+        hrm.lcd.setCursor(0,1);
+        hrm.lcd.print("please wait ......");
         state = IDLE;
+        delay(1500);
       }
     }
   }
@@ -112,7 +118,13 @@ void loop()
       if (digitalRead(btn_red == 1))
       {
         Serial.println("Red do");
+        hrm.lcd.clear();
+        hrm.lcd.setCursor(0,0);
+        hrm.lcd.print("GoTO Homepage...");
+        hrm.lcd.setCursor(0,1);
+        hrm.lcd.print("please wait ......");
         state = IDLE;
+        delay(1500);
       }
     }
   }
@@ -140,48 +152,45 @@ void calculateHeartRate(String name, int Lower_quartile, int Upper_quartile)
     if (hrm.My_Delay(500))
     {
       hrm.lcd.clear();
-      if (IntHeartrate < Lower_quartile)
-      {
+      if (IntHeartrate < Lower_quartile) // อัตราการเต้นของหัวใจต่ำกว่าปกติ
         hrm.lcd.setCursor(0, 0);
-        hrm.lcd.print("BPM : ");
-        hrm.lcd.setCursor(9, 0);
-        hrm.lcd.print(heartrate, 0);
-        hrm.lcd.setCursor(0, 1);
-        hrm.lcd.print("BPM is slower !!!");
-        Serial.println("The heart beats slower than usual.");
-        if (heartrate == 0)
-        {
-          delay(1000);
-        }
-        
+      hrm.lcd.print("BPM : ");
+      hrm.lcd.setCursor(9, 0);
+      hrm.lcd.print(heartrate, 0);
+      hrm.lcd.setCursor(0, 1);
+      hrm.lcd.print("BPM is slower !!!");
+      Serial.println("The heart beats slower than usual.");
+      if (heartrate == 0)
+      {
+        delay(1000);
       }
-      else if (IntHeartrate > Upper_quartile)
+    }
+    else if (IntHeartrate > Upper_quartile) // อัตราการเต้นของหัวใจสูงกว่าปกติ
+    {
+      hrm.lcd.setCursor(0, 0);
+      hrm.lcd.print("BPM : ");
+      hrm.lcd.setCursor(9, 0);
+      hrm.lcd.print(heartrate, 0);
+      hrm.lcd.setCursor(0, 1);
+      hrm.lcd.print("BPM is faster !!!");
+      Serial.println("My heart beats faster than usual.");
+      if (heartrate == 0)
       {
-        hrm.lcd.setCursor(0, 0);
-        hrm.lcd.print("BPM : ");
-        hrm.lcd.setCursor(9, 0);
-        hrm.lcd.print(heartrate, 0);
-        hrm.lcd.setCursor(0, 1);
-        hrm.lcd.print("BPM is faster !!!");
-        Serial.println("My heart beats faster than usual.");
-         if (heartrate == 0)
-        {
-          delay(1000);
-        }
+        delay(1000);
       }
-      else
+    }
+    else // อัตราการเต้นของหัวใจอยู่ในช่วงปกติ
+    {
+      hrm.lcd.setCursor(0, 0);
+      hrm.lcd.print("BPM : ");
+      hrm.lcd.setCursor(9, 0);
+      hrm.lcd.print(heartrate, 0);
+      hrm.lcd.setCursor(0, 1);
+      hrm.lcd.print("BPM is normal ...");
+      Serial.println("Heart rate is within normal range.");
+      if (heartrate == 0)
       {
-        hrm.lcd.setCursor(0, 0);
-        hrm.lcd.print("BPM : ");
-        hrm.lcd.setCursor(9, 0);
-        hrm.lcd.print(heartrate, 0);
-        hrm.lcd.setCursor(0, 1);
-        hrm.lcd.print("BPM is normal ...");
-        Serial.println("Heart rate is within normal range.");
-         if (heartrate == 0)
-        {
-          delay(1000);
-        }
+        delay(1000);
       }
     }
   }
