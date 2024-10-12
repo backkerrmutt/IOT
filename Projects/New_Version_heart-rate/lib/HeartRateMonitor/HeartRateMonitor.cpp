@@ -7,9 +7,10 @@ void HeartRateMonitor::Init() {
     lcd.init();
     lcd.backlight();
     Serial.begin(115200);
-    Serial.println("Initializing...");
     pinMode(2, OUTPUT); // LED_SHOW_HEARTBEAT
 
+    // init sensor
+    Serial.println("Initializing...");
     if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) {
         Serial.println("MAX30105 was not found. Please check wiring/power.");
         while (1);

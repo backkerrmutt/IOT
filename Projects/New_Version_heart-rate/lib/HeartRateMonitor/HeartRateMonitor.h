@@ -16,7 +16,8 @@ public:
     bool HeartRate_Display(float val);
     bool My_Delay(unsigned long interval);
     LiquidCrystal_I2C lcd;
-
+    
+    
 private:
     MAX30105 particleSensor;
     #define RATE_SIZE 4
@@ -28,6 +29,7 @@ private:
     unsigned long previousMillis;
     int previousValue;
     int LED_DISPLAY;
+    
 };
 
 #endif
