@@ -1,7 +1,7 @@
 #include "HeartRateMonitor.h"
 
 HeartRateMonitor::HeartRateMonitor() : lcd(0x27, 16, 2), rateSpot(0), lastBeat(0), beatsPerMinute(0), beatAvg(0), 
-previousMillis(0), previousValue(0),LED_DISPLAY(2){}
+previousMillis(0), previousValue(0),LED_DISPLAY(2) {}
 
 void HeartRateMonitor::Init() {
     lcd.init();
@@ -19,12 +19,26 @@ void HeartRateMonitor::Init() {
     particleSensor.setup();
 }
 
-// void HeartRateMonitor::print(auto somthings){
-//     lcd.print(somthings);
-// }
-// void HeartRateMonitor::clear(){
-//     lcd.clear();
-// }
+// config WiFi
+void HeartRateMonitor::WiFiconfig()
+{
+  bool res;
+  // res = wm.autoConnect(); // auto generated AP name from chipid
+  res = wm.autoConnect("Heart-Rate_Mini-pro"); // anonymous ap
+  // res = wm.autoConnect("AutoConnectAP","password"); // password protected ap
+
+  if (!res)
+  {
+    Serial.println("Failed to connect");
+    ESP.restart();
+  }
+  else
+  {
+    // if you get here you have connected to the WiFi
+    Serial.println("connected...yeey :)");
+  }
+  delay(500);
+}
 
 void HeartRateMonitor::Update() {
     float val = calculateBeatAvg();

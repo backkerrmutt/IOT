@@ -6,6 +6,7 @@
 #include <LiquidCrystal_I2C.h>
 #include <heartRate.h>
 #include <Wire.h>
+#include <WiFiManager.h>
 
 class HeartRateMonitor {
 public:
@@ -15,6 +16,7 @@ public:
     float calculateBeatAvg();
     bool HeartRate_Display(float val);
     bool My_Delay(unsigned long interval);
+    void WiFiconfig();
     LiquidCrystal_I2C lcd;
     
     
@@ -29,6 +31,7 @@ private:
     unsigned long previousMillis;
     int previousValue;
     int LED_DISPLAY;
+    WiFiManager wm;
     
 };
 
