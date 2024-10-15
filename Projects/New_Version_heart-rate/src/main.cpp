@@ -1,8 +1,18 @@
+// blynk
+#define BLYNK_TEMPLATE_ID "TMPL6pw8DvVVt"
+#define BLYNK_TEMPLATE_NAME "test"
+#define BLYNK_AUTH_TOKEN "D_Zw1oAsltNcajCpzI0XR25ujzQ6AOPr"
+
 #include <Arduino.h>
 #include <HeartRateMonitor.h>
+#include <BlynkSimpleEsp8266.h>
+#include <SpO2Sensor.h>
 
+HeartRateMonitor hrm;  // สร้าง object จาก library HeartRateMonitor
+SpO2Sensor spo2Sensor; // สร้าง object จาก library mySpo2
 
-HeartRateMonitor hrm; // สร้าง object จาก library HeartRateMonitor
+float heartrate = 0; // heartrate value
+float spo2 = 0; // spo2 value
 
 // Machine_Stats Values
 const unsigned int IDLE = 0;       // state รอก่อนเลือกโหมด
@@ -25,6 +35,8 @@ void calculateHeartRate(String name, int Lower_quartile, int Upper_quartile);
 void handleSwitchYellowInterrupt();
 void handleSwitchWhiteInterrupt();
 void handleSwitchRedInterrupt();
+// void sendHeartRateToBlynk();
+// void spo2_cal();
 void backtoIDEL();
 
 // Configure the minimum maximum of heart rate...
@@ -47,9 +59,25 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(btn_white), handleSwitchWhiteInterrupt, RISING);
   attachInterrupt(digitalPinToInterrupt(btn_red), handleSwitchRedInterrupt, RISING);
   hrm.WiFiconfig();
+
+  Blynk.begin(BLYNK_AUTH_TOKEN, WiFi.SSID().c_str(), WiFi.psk().c_str()); // เริ่ม Blynk
+
+  // เริ้มทำงาน spo2Sensor
+  if (spo2Sensor.begin())
+  {
+    Serial.println("Sensor initialized");
+  }
+  else
+  {
+    Serial.println("Sensor not found");
+    while (1)
+      ;
+  }
 }
 void loop()
 {
+  Blynk.run(); // Run Blynk
+  
   // IDLE start -----------------------------------------------------------------------------------------
   if (state == IDLE)
   {
@@ -87,7 +115,7 @@ void loop()
   // IDEL end -----------------------------------------------------------------------------------------
 
   // CHILDEN start -----------------------------------------------------------------------------------------
-  if (state == CHILD)
+  else if (state == CHILD)
   {
     String NameOfState = "CHILD MODE";
     calculateHeartRate(NameOfState, ch_Lower_quartile, ch_Upper_quartile);
@@ -105,7 +133,7 @@ void loop()
   // CHILDEN end -----------------------------------------------------------------------------------------
 
   // MIDDLE_AGE start -----------------------------------------------------------------------------------------
-  if (state == MIDDLE_AGE)
+  else if (state == MIDDLE_AGE)
   {
     String NameOfState = "MIDDLE AGE";
     calculateHeartRate(NameOfState, md_Lower_quartile, md_Upper_quartile);
@@ -123,27 +151,15 @@ void loop()
   // MIDDLE_AGE end -----------------------------------------------------------------------------------------
 }
 
-// backtoIDEL_function start ----------------------------------------------------------
-void backtoIDEL()
-{
-  hrm.lcd.clear();
-  hrm.lcd.setCursor(0, 0);
-  hrm.lcd.print("GoTO Homepage...");
-  hrm.lcd.setCursor(0, 1);
-  hrm.lcd.print("please wait ......");
-  state = IDLE;
-  delay(1500);
-}
-// backtoIDEL_function end ----------------------------------------------------------
-
 // คำนวณและแสดงสถานะออก lCD ----------------------------------------------------------------------------
 void calculateHeartRate(String name, int Lower_quartile, int Upper_quartile)
 {
-  float heartrate = hrm.calculateBeatAvg();
+  heartrate = hrm.calculateBeatAvg();
+  Serial.println(heartrate);
   int IntHeartrate = int(heartrate);
   if (heartrate == 0) // ไม่ได้วางนิ้ว
   {
-    if (hrm.My_Delay(1000))
+    if (hrm.My_Delay(500))
     {
       hrm.lcd.clear();
       hrm.lcd.setCursor(0, 0);
@@ -160,9 +176,13 @@ void calculateHeartRate(String name, int Lower_quartile, int Upper_quartile)
       if (IntHeartrate < Lower_quartile) // อัตราการเต้นของหัวใจต่ำกว่าปกติ
       {
         hrm.lcd.setCursor(0, 0);
-        hrm.lcd.print("BPM : ");
-        hrm.lcd.setCursor(9, 0);
+        hrm.lcd.print("BPM ");
+        hrm.lcd.setCursor(5, 0);
         hrm.lcd.print(heartrate, 0);
+        hrm.lcd.setCursor(8, 0);
+        hrm.lcd.print("Spo2  ");
+        hrm.lcd.setCursor(13, 0);
+        hrm.lcd.print(spo2, 0);
         hrm.lcd.setCursor(0, 1);
         hrm.lcd.print("BPM is slower !!!");
         Serial.println("The heart beats slower than usual.");
@@ -174,9 +194,13 @@ void calculateHeartRate(String name, int Lower_quartile, int Upper_quartile)
       else if (IntHeartrate > Upper_quartile) // อัตราการเต้นของหัวใจสูงกว่าปกติ
       {
         hrm.lcd.setCursor(0, 0);
-        hrm.lcd.print("BPM : ");
-        hrm.lcd.setCursor(9, 0);
+        hrm.lcd.print("BPM ");
+        hrm.lcd.setCursor(5, 0);
         hrm.lcd.print(heartrate, 0);
+        hrm.lcd.setCursor(8, 0);
+        hrm.lcd.print("Spo2  ");
+        hrm.lcd.setCursor(13, 0);
+        hrm.lcd.print(spo2, 0);
         hrm.lcd.setCursor(0, 1);
         hrm.lcd.print("BPM is faster !!!");
         Serial.println("My heart beats faster than usual.");
@@ -188,9 +212,13 @@ void calculateHeartRate(String name, int Lower_quartile, int Upper_quartile)
       else if ((IntHeartrate >= Lower_quartile) && (IntHeartrate <= Upper_quartile)) // อัตราการเต้นของหัวใจอยู่ในช่วงปกติ
       {
         hrm.lcd.setCursor(0, 0);
-        hrm.lcd.print("BPM : ");
-        hrm.lcd.setCursor(9, 0);
+        hrm.lcd.print("BPM ");
+        hrm.lcd.setCursor(5, 0);
         hrm.lcd.print(heartrate, 0);
+        hrm.lcd.setCursor(8, 0);
+        hrm.lcd.print("Spo2  ");
+        hrm.lcd.setCursor(13, 0);
+        hrm.lcd.print(spo2, 0);
         hrm.lcd.setCursor(0, 1);
         hrm.lcd.print("BPM is normal ...");
         Serial.println("Heart rate is within normal range.");
@@ -199,10 +227,25 @@ void calculateHeartRate(String name, int Lower_quartile, int Upper_quartile)
           delay(1000);
         }
       }
+      Blynk.virtualWrite(V1, heartrate); // send data to blynk
+      spo2 = spo2Sensor.readSpO2(); // read data spo2
     }
   }
 }
 // end --------------------------------------------------------------------------------------------------------
+
+// backtoIDEL_function start ----------------------------------------------------------
+void backtoIDEL()
+{
+  hrm.lcd.clear();
+  hrm.lcd.setCursor(0, 0);
+  hrm.lcd.print("GoTO Homepage...");
+  hrm.lcd.setCursor(0, 1);
+  hrm.lcd.print("please wait ......");
+  state = IDLE;
+  delay(1500);
+}
+// backtoIDEL_function end ----------------------------------------------------------
 
 // interrupt
 void ICACHE_RAM_ATTR handleSwitchYellowInterrupt()

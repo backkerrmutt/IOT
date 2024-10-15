@@ -108,7 +108,7 @@ float HeartRateMonitor::calculateBeatAvg() {
             }
             beatAvg /= 4;
             digitalWrite(LED_DISPLAY, true);
-            delay(100);
+            delay(80);
             digitalWrite(LED_DISPLAY, false);
         }
     }
@@ -117,6 +117,7 @@ float HeartRateMonitor::calculateBeatAvg() {
         return 0;
     } else {
         return beatAvg;
+        // return beatsPerMinute;
     }
     delay(20);
 }
